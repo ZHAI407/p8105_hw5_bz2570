@@ -1,0 +1,94 @@
+---
+title: "p8105_hw5_bz2570"
+author: "Boran Zhai"
+date: "2025-11-06"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(rvest)
+
+set.seed(321)
+```
+
+## Problem 1
+
+```{r}
+birthday_sim <- function(group_size) {
+  birthdays <- sample(1:365, group_size, replace = TRUE)
+  repeated_bday <- length(unique(birthdays)) < group_size
+  repeated_bday
+}
+
+bday_sim_results =
+  expand_grid(
+    bdays = 2:50,
+    iter = 1:10000
+  ) |>
+  mutate(
+    result = map_lgl(bdays, birthday_sim)
+  ) |>
+  group_by(
+    bdays
+  ) |>
+  summarize(
+    prob_repeat = mean(result)
+  )
+knitr::kable(head(bday_sim_results, 10), caption = "Birthday simulation results (Only showing first 10 rows)", digits = 4)
+```
+
+```{r}
+bday_sim_results |>
+  ggplot(aes(x = bdays, y = prob_repeat)) +
+  geom_point() +
+  geom_line() +
+  labs(
+    title = "Probability of Shared Birthday by Group Size",
+    x = "Group Size",
+    y = "Probability"
+  ) +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold", size = 15))
+```
+
+```{r}
+
+```
+
+## Problem 2
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+```
+
+
+## Problem 3 
+```{r}
+
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
