@@ -8,6 +8,7 @@ output: github_document
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(rvest)
+library(readr)
 
 set.seed(321)
 ```
@@ -52,40 +53,138 @@ bday_sim_results |>
   theme(plot.title = element_text(hjust = 0.5, face = "bold", size = 15))
 ```
 
-```{r}
-
-```
-
 ## Problem 2
 
 ```{r}
-
+# Set design elements:
+n <- 30
+sigma <- 5
+alpha <- 0.05
+# Set μ = 0. Generate 5000 datasets
+mu_true_values <- c(0)
+n_sims <- 5000
 ```
 
 ```{r}
+# Write a function
+power_sim <- function(true_mu, n, sigma, n_sims) {
+  results <- 
+    expand_grid(
+      mu = true_mu,           # The true value of mu
+      iter = 1:n_sims
+    ) |> 
+    mutate(
+      x = map(mu, ~rnorm(n, mean = .x, sd = sigma)),
+      t_test = map(x, ~t.test(.x, mu = 0)),
+      tidy_result = map(t_test, broom::tidy)
+    ) |> 
+    unnest(tidy_result) |> 
+    
+    select(mu, mu_hat = estimate, p_value = p.value)
+  return(results)
+}
 
+sim_results_0 <- power_sim(mu_true_values, n, sigma, n_sims)
 ```
 
 ```{r}
-
+mu_true_values_add <- c(1, 2, 3, 4, 5, 6)
+sim_results_add <-  power_sim(mu_true_values_add, n, sigma, n_sims)
+# Combine results
+sim_results <- bind_rows(sim_results_0, sim_results_add)
 ```
 
 ```{r}
-
+summary_stats <- 
+  sim_results |> 
+  group_by(mu) |> 
+  summarize(
+    avg_mu_hat = mean(mu_hat),           # Average estimate from all samples
+    power = mean(p_value < alpha),        # The proportion of times the null was rejected
+    avg_mu_hat_rejected = mean(mu_hat[p_value < alpha]),   
+    # Average estimate of mu_hat only in samples for which the null was rejecte
+    n_rejected = sum(p_value < alpha)     # Number of samples for which the null was rejected
+  )
+knitr::kable(summary_stats)
 ```
 
 ```{r}
+power_plot <- 
+  ggplot(summary_stats, aes(x = mu, y = power)) +
+  geom_line() +
+  geom_point() +
+  labs(
+    title = "Association between Effect Size and Power",
+    subtitle = "One-sample t-test with n = 30, σ = 5, α = 0.05",
+    x = "True Value of μ",
+    y = "Power"
+  ) +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold", size = 15),
+        plot.subtitle = element_text(hjust = 0.5))
+
+print(power_plot)
 ```
 
+##### Describe the association between effect size and power
+
+
+```{r}
+# Make two plot showing the average estimate of μ and the true value of μ / the average estimate of μ only in samples for which the null was rejected and the true value of μ
+comparison_plot <- 
+  ggplot(summary_stats) +
+  geom_line(aes(x = mu, y = avg_mu_hat, color = "Average estimate of μ in all samples")) +
+  geom_point(aes(x = mu, y = avg_mu_hat, color = "Average estimate of μ in all samples")) +
+  geom_line(aes(x = mu, y = avg_mu_hat_rejected, color = "Average estimate of μ in samples where null was rejected")) +
+  geom_point(aes(x = mu, y = avg_mu_hat_rejected, color = "Average estimate of μ in samples where null was rejected")) +
+  labs(
+    title = "Comparison of average estimates μ of and true μ in different samples",
+    subtitle = "All samples vs samples where null was rejected",
+    x = "True Value of μ",
+    y = "Average Estimate of mu_hat",
+    color = "Sample Type"
+  ) +
+  theme_minimal() +
+  scale_color_manual(
+    values = c("Average estimate of μ in all samples" = "red", 
+               "Average estimate of μ in samples where null was rejected" = "blue")
+  ) +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold", size = 15),
+        plot.subtitle = element_text(hjust = 0.5),
+        legend.position = "bottom")
+  
+print(comparison_plot)
+```
+
+##### Is the sample average of mu_hat across tests for which the null is rejected approximately equal to the true value of μ? Why or why not?
 
 ## Problem 3 
 ```{r}
+homicide_data = read_csv("data/homicide-data.csv")
+# Create city_state variable and summarize within cities to obtain the total number of homicides and the number of unsolved homicides
+homicide_summary <- 
+  homicide_data |> 
+  janitor::clean_names() |> 
+  mutate(
+    city_state = str_c(city, ", ", state) 
+  ) |> 
+  group_by(city_state) |> 
+  summarize(
+    total_homicides = n(),  # Total number of homicides
+    unsolved_homicides = sum(disposition %in% c("Closed without arrest", "Open/No arrest"))  # Number of unsolved homicides
+  )
 
-
+knitr::kable(homicide_summary)
 ```
 
-```{r}
+For the city of Baltimore, MD, use the prop.test function to estimate the proportion of homicides that are unsolved
 
+save the output of prop.test as an R object, apply the broom::tidy to this object and pull the estimated proportion and confidence intervals from the resulting tidy dataframe.
+
+```{r}
+baltimore_data = 
+  homicide_summary |> 
+  filter(city_state == "Baltimore, MD")
 ```
 
 ```{r}
