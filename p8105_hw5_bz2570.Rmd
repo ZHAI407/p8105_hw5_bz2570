@@ -173,7 +173,7 @@ homicide_data = read_csv("data/homicide-data.csv")
 
 #### Describe the raw data.
 
-The raw dataset contains `r nrow(homicide_data)` homicide records and `r ncol(homicide_data)` variables. The data spans from `r format(as.Date(min(homicide_data$reported_date)), "%Y-%m-%d")` to `r format(as.Date(max(homicide_data$reported_date)), "%Y-%m-%d")`. Key variables include victim demographics like *name, age, race, sex*, geographic information like *city, state, lat, lon*, and *disposition* (which indicates whether cases were closed by arrest, closed without arrest, or remain open).
+The raw dataset contains `r nrow(homicide_data)` homicide records and `r ncol(homicide_data)` variables. Key variables include victim demographics like *name, age, race, sex*, geographic information like *city, state, lat, lon*, and *disposition* (which indicates whether cases were closed by arrest, closed without arrest, or remain open).
 
 #### Create city_state variable and summarize
 ```{r}
