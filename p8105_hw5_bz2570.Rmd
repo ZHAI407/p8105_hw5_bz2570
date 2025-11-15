@@ -213,7 +213,7 @@ tidy_baltimore_test |>
   knitr::kable(digits = 4)
 ```
 
-The estimated proportion of unsolved homicides in Baltimore, MD is r round(tidy_baltimore_test$estimate, 4), with a 95% confidence interval of (r round(tidy_baltimore_test$conf.low, 4), r round(tidy_baltimore_test$conf.high, 4)).
+The estimated proportion of unsolved homicides in Baltimore, MD is `r round(tidy_baltimore_test$estimate, 4)`, with a 95% confidence interval of (`r round(tidy_baltimore_test$conf.low, 4)`, `r round(tidy_baltimore_test$conf.high, 4)`).
 
 **For all cities**
 ```{r}
@@ -238,7 +238,7 @@ city_prop_tests <-
 knitr::kable(city_prop_tests, digits = 4)
 ```
 
-Across all cities, the proportion of unsolved homicides ranges from r round(min(city_prop_tests$proportion_unsolved), 4) to r round(max(city_prop_tests$proportion_unsolved), 4), with 95% confidence intervals shown in the table above.
+Across all cities, the proportion of unsolved homicides ranges from `r round(min(city_prop_tests$proportion_unsolved), 4)` to `r round(max(city_prop_tests$proportion_unsolved), 4)`, with 95% confidence intervals shown in the table above.
 
 ```{r}
 # Create a plot that shows the estimates and CIs for each city
